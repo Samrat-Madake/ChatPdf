@@ -36,10 +36,10 @@ def build_rag_chain(pdf_path: str):
 
     # 1️⃣ Load PDF
     try:
-    loader = PyPDFium2Loader(pdf_path)
-    docs = loader.load()
-except Exception as e:
-    raise RuntimeError(f"Failed to load PDF: {e}")
+        loader = PyPDFium2Loader(pdf_path)
+        docs = loader.load()
+    except Exception as e:
+        raise RuntimeError(f"Failed to load PDF: {e}")
 
 
     for doc in docs:
