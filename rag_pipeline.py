@@ -3,7 +3,9 @@
 import re
 from dotenv import load_dotenv
 
-from langchain_community.document_loaders import PyPDFLoader
+# from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFium2Loader
+
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -33,8 +35,12 @@ def clean_pdf_text(text: str) -> str:
 def build_rag_chain(pdf_path: str):
 
     # 1️⃣ Load PDF
-    loader = PyPDFLoader(pdf_path)
+    try:
+    loader = PyPDFium2Loader(pdf_path)
     docs = loader.load()
+except Exception as e:
+    raise RuntimeError(f"Failed to load PDF: {e}")
+
 
     for doc in docs:
         doc.metadata["source"] = pdf_path
