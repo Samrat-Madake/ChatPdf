@@ -6,6 +6,7 @@ langchain-huggingface
 langchain-groq
 chromadb
 pypdf
+pypdfium2
 python-dotenv
 sentence-transformers
 huggingface-hub
