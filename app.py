@@ -3,13 +3,9 @@
 import streamlit as st
 import tempfile
 import os
-import base64
 
 from rag_pipeline import build_rag_chain
-# ///////////////////////////////////////////////
 
-
-# ///////////////////////////////////////////////
 # =========================
 # PAGE CONFIG
 # =========================
@@ -35,23 +31,7 @@ if "pdf_bytes" not in st.session_state:
 
 
 # =========================
-# PDF PREVIEW FUNCTION
-# =========================
-def show_pdf(pdf_bytes):
-    base64_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
-    pdf_display = f"""
-    <iframe
-        src="data:application/pdf;base64,{base64_pdf}"
-        width="100%"
-        height="700"
-        type="application/pdf">
-    </iframe>
-    """
-    st.markdown(pdf_display, unsafe_allow_html=True)
-
-
-# =========================
-# SIDEBAR (PDF UPLOAD + PREVIEW)
+# SIDEBAR (PDF UPLOAD)
 # =========================
 with st.sidebar:
     st.title("📄 ChatPDF")
@@ -88,13 +68,19 @@ with st.sidebar:
 left_col, right_col = st.columns([1.1, 1.9])
 
 # =========================
-# LEFT: PDF PREVIEW
+# LEFT: PDF PREVIEW (SAFE)
 # =========================
 with left_col:
     st.subheader("📘 PDF Preview")
 
     if st.session_state.pdf_bytes:
-        show_pdf(st.session_state.pdf_bytes)
+        st.download_button(
+            label="📥 Open PDF in new tab",
+            data=st.session_state.pdf_bytes,
+            file_name="uploaded.pdf",
+            mime="application/pdf"
+        )
+        st.info("Click the button to open the PDF in a new browser tab.")
     else:
         st.info("Upload a PDF to preview it here.")
 
@@ -108,7 +94,6 @@ with right_col:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-            # 🔍 Show sources if available
             if msg["role"] == "assistant" and "sources" in msg:
                 with st.expander("🔎 View source chunks"):
                     for i, src in enumerate(msg["sources"], 1):
@@ -119,7 +104,6 @@ with right_col:
     user_query = st.chat_input("Ask something about the PDF...")
 
     if user_query:
-        # Show user message
         st.session_state.messages.append({
             "role": "user",
             "content": user_query
@@ -144,7 +128,6 @@ with right_col:
 
                 sources = [doc.page_content for doc in retrieved_docs]
 
-        # Store assistant response with sources
         st.session_state.messages.append({
             "role": "assistant",
             "content": answer,
